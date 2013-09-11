@@ -1,12 +1,12 @@
-<?php 
-/** 
+<?php
+/**
  * This file content the routines for install/activate  uninstall/deactivate Magic Fields
  */
-class mf_install { 
+class mf_install {
 
   function install () {
     global $wpdb;
-    
+
     require_once(ABSPATH.'wp-admin/includes/upgrade.php');
 
 		// Get collation info
@@ -44,7 +44,7 @@ class mf_install {
       ";
       dbDelta($sql);
     }
-    
+
     // Table custom fields
     if($wpdb->get_var( sprintf("SHOW tables LIKE '%s'",MF_TABLE_CUSTOM_FIELDS) ) != MF_TABLE_CUSTOM_FIELDS) {
       $sql = "CREATE TABLE ".MF_TABLE_CUSTOM_FIELDS. " (
@@ -56,7 +56,7 @@ class mf_install {
         custom_group_id int(19) NOT NULL,
         type varchar(100) NOT NULL,
         required_field tinyint(1),
-        display_order mediumint(9) DEFAULT 0, 
+        display_order mediumint(9) DEFAULT 0,
         duplicated tinyint(1),
         active tinyint(1) DEFAULT 1,
         options text,
@@ -82,11 +82,11 @@ class mf_install {
 
     // Table MF Post Meta
     if( $wpdb->get_var( sprintf("SHOW tables LIKE '%s'",MF_TABLE_POST_META) ) != MF_TABLE_POST_META ) {
-      $sql = "CREATE TABLE ".MF_TABLE_POST_META." ( 
-        meta_id INT NOT NULL, 
-        field_name VARCHAR(255) NOT NULL, 
-        field_count INT NOT NULL,  
-        group_count  INT NOT NULL, 
+      $sql = "CREATE TABLE ".MF_TABLE_POST_META." (
+        meta_id INT NOT NULL,
+        field_name VARCHAR(255) NOT NULL,
+        field_count INT NOT NULL,
+        group_count  INT NOT NULL,
         post_id INT NOT NULL,
         PRIMARY KEY meta_id (meta_id),
         INDEX idx_post_field (post_id, meta_id) ) $charset_collate
@@ -94,21 +94,21 @@ class mf_install {
 
       dbDelta($sql);
     }
-    
+
     if ( get_option( MF_DB_VERSION_KEY, FALSE ) === FALSE ) update_option(MF_DB_VERSION_KEY, MF_DB_VERSION);
 
     if (get_option(MF_DB_VERSION_KEY) < MF_DB_VERSION){
       self::upgrade();
       update_option(MF_DB_VERSION_KEY, MF_DB_VERSION);
     }
-    
-    
+
+
   }
-  
-  public function upgrade(){  
+
+  public function upgrade(){
     global $wpdb;
 
-    $db_version = get_option(MF_DB_VERSION_KEY); 
+    $db_version = get_option(MF_DB_VERSION_KEY);
 
     if( $db_version < 2 ) {
       $sql = "ALTER TABLE ".MF_TABLE_CUSTOM_FIELDS. " CHANGE COLUMN requiered_field required_field tinyint(1)";
@@ -123,27 +123,27 @@ class mf_install {
     update_option(MF_DB_VERSION_KEY, MF_DB_VERSION);
   }
 
-  public function folders(){
+  public static function folders(){
     global $mf_domain;
-    
+
     $dir_list = "";
     $dir_list2 = "";
 
     wp_mkdir_p(MF_FILES_DIR);
     wp_mkdir_p(MF_CACHE_DIR);
-    
+
     if (!is_dir(MF_CACHE_DIR)){
       $dir_list2.= "<li>".MF_CACHE_DIR . "</li>";
     }elseif (!is_writable(MF_CACHE_DIR)){
       $dir_list.= "<li>".MF_CACHE_DIR . "</li>";
     }
-    
+
     if (!is_dir(MF_FILES_DIR)){
       $dir_list2.= "<li>".MF_FILES_DIR . "</li>";
     }elseif (!is_writable(MF_FILES_DIR)){
       $dir_list.= "<li>".MF_FILES_DIR . "</li>";
     }
-    
+
     if ($dir_list2 != ""){
       echo "<div id='magic-fields-install-error-message' class='error'><p><strong>".__('Magic Fields is not ready yet.', $mf_domain)."</strong> ".__('must create the following folders (and must chmod 777):', $mf_domain)."</p><ul>";
       echo $dir_list2;
@@ -170,7 +170,7 @@ class mf_install {
       }
     }
   }
-  
+
   public function delete_files(){
     if (is_dir(MF_FILES_DIR)) {
       if ($dh = opendir(MF_FILES_DIR)) {
@@ -183,7 +183,7 @@ class mf_install {
       }
     }
   }
-  
+
   //unistall MF (delete thumbs, tables and settings)
   public function uninstall(){
     global $wpdb;
@@ -199,10 +199,10 @@ class mf_install {
 
     $sql = "DROP TABLE " . MF_TABLE_POSTTYPES;
     $wpdb->query($sql);
-    
+
     $sql = "DROP TABLE " . MF_TABLE_CUSTOM_TAXONOMY;
     $wpdb->query($sql);
-    
+
     $sql = "DROP TABLE " . MF_TABLE_CUSTOM_FIELDS;
     $wpdb->query($sql);
 
@@ -211,7 +211,7 @@ class mf_install {
 
     $sql = "DROP TABLE " . MF_TABLE_POST_META;
     $wpdb->query($sql);
-    
+
     $current = get_option('active_plugins');
     $plugin = plugin_basename(MF_PATH.'/main.php');
     array_splice($current, array_search( $plugin, $current), 1 );

@@ -35,7 +35,7 @@ class mf_settings extends mf_admin {
         mf_install::clear_cache();
       }
       unset($data['mf_settings']['extra']);
-    
+
       self::update($data['mf_settings']['general']);
       wp_redirect('options-general.php?page=mf_settings');
     }
@@ -80,7 +80,7 @@ class mf_settings extends mf_admin {
 
   public function fields_form() {
     global $mf_domain;
-  
+
     $options = get_option(MF_SETTINGS_KEY);
     if( !is_array( $options ) )  {
       $options = unserialize( $options );
@@ -152,13 +152,13 @@ class mf_settings extends mf_admin {
     update_option(MF_SETTINGS_KEY, $options);
   }
 
-  function get($key = null) {
+  public static function get($key = null) {
     if (get_option(MF_SETTINGS_KEY) == "") return "";
     if (is_array(get_option(MF_SETTINGS_KEY)))
       $options = get_option(MF_SETTINGS_KEY);
     else
       $options = unserialize(get_option(MF_SETTINGS_KEY));
-    
+
     if (!empty($key)){
       if( isset($options[$key]) ) return $options[$key];
       return false;
